@@ -1,0 +1,7 @@
+project_id     = "project-f69b612e-dd6f-4ddc-a25"
+org_id         = "985831748852"
+region         = "us-south1"
+zone           = "us-south1-a"
+vpc_name       = "umzy-vpc"
+subnet_name    = "umzy-app-subnet-01"
+subnet_ip_cidr = "10.128.0.0/20"
