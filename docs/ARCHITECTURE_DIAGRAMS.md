@@ -243,3 +243,74 @@ graph TD
     class VM1,VM2,VM3,VM4 vmStyle;
 ```
 
+---
+
+## 5. Single Region 4-VM Scale Set with External HTTP Load Balancer & Health Checks (`umzy-loadbalanced-scaleset`)
+
+### Visual Diagram Blueprint
+![GCP 4-VM Scale Set with External HTTP Load Balancer & Health Checks](gcp_lb_scaleset_diagram.jpg)
+
+### Network & Security Flow
+```mermaid
+graph TD
+    classDef internetStyle fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#fff;
+    classDef gcpStyle fill:#0f172a,stroke:#10b981,stroke-width:2px,color:#fff;
+    classDef lbStyle fill:#1e1e38,stroke:#6366f1,stroke-width:2px,color:#fff;
+    classDef subnetStyle fill:#1e293b,stroke:#f59e0b,stroke-width:2px,color:#fff;
+    classDef vmStyle fill:#334155,stroke:#ec4899,stroke-width:2px,color:#fff;
+
+    subgraph IN ["🌐 Public Internet (0.0.0.0/0)"]
+        CLIENT["🌐 Web Client (HTTP Port 80)"]
+        ADMIN["👨‍💻 Admin (SSH Port 22)"]
+    end
+
+    subgraph GCP ["☁️ Google Cloud Platform (Region: us-south1 Dallas)"]
+        subgraph LB ["⚖️ GCP External HTTP Load Balancer Layer"]
+            FWD["Global Forwarding Rule (Port 80)<br/>Public IP: 8.233.214.139"]
+            PROXY["Target HTTP Proxy"]
+            MAP["URL Map"]
+            BS["Backend Service (ROUND_ROBIN)"]
+            HC["HTTP Health Check (Port 80 /)"]
+            IG["Unmanaged Instance Group (4 VMs)"]
+        end
+
+        subgraph VPC ["🛡️ Custom VPC Network (umzy-vpc-scaleset)"]
+            subgraph FW ["🔥 Security Boundary"]
+                FW1["Rule: allow_ssh (TCP 22) -> Tag: ssh"]
+                FW2["Rule: allow_http (TCP 80) -> Tag: web-server"]
+            end
+
+            subgraph SUB ["📍 Custom Subnet (umzy-subnet-us-south1 - 10.128.0.0/20)"]
+                VM1["💻 VM 1 (umzy-app-vm-scaleset-01)"]
+                VM2["💻 VM 2 (umzy-app-vm-scaleset-02)"]
+                VM3["💻 VM 3 (umzy-app-vm-scaleset-03)"]
+                VM4["💻 VM 4 (umzy-app-vm-scaleset-04)"]
+            end
+        end
+    end
+
+    CLIENT --> FWD
+    FWD --> PROXY
+    PROXY --> MAP
+    MAP --> BS
+    HC -->|Polls Health| BS
+    BS -->|Round Robin Traffic| IG
+    IG --> VM1
+    IG --> VM2
+    IG --> VM3
+    IG --> VM4
+
+    ADMIN -->|TCP 22| FW1
+    FW1 -->|Matches Tag: ssh| VM1
+    FW1 -->|Matches Tag: ssh| VM2
+    FW1 -->|Matches Tag: ssh| VM3
+    FW1 -->|Matches Tag: ssh| VM4
+
+    class IN internetStyle;
+    class GCP gcpStyle;
+    class LB lbStyle;
+    class SUB subnetStyle;
+    class VM1,VM2,VM3,VM4 vmStyle;
+```
+
+
