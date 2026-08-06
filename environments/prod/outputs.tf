@@ -20,32 +20,32 @@ output "subnets" {
   description = "Details of all provisioned subnets across regions"
 }
 
-output "vm_us_south1_public_ip" {
-  value       = module.compute_us_south1.public_ips
-  description = "Public IP address of VM in us-south1 (South US)"
+output "vm_us_south1_public_ips" {
+  value       = length(module.compute_us_south1) > 0 ? module.compute_us_south1[0].public_ips : []
+  description = "Public IP addresses of VMs in us-south1 (South US)"
 }
 
-output "vm_us_south1_internal_ip" {
-  value       = module.compute_us_south1.internal_ips
-  description = "Internal IP address of VM in us-south1 (South US)"
+output "vm_us_south1_internal_ips" {
+  value       = length(module.compute_us_south1) > 0 ? module.compute_us_south1[0].internal_ips : []
+  description = "Internal IP addresses of VMs in us-south1 (South US)"
 }
 
-output "vm_us_south1_web_url" {
-  value       = module.compute_us_south1.web_server_urls
-  description = "Web server URL for VM in us-south1"
+output "vm_us_south1_web_urls" {
+  value       = length(module.compute_us_south1) > 0 ? module.compute_us_south1[0].web_server_urls : []
+  description = "Web server URLs for VMs in us-south1"
 }
 
-output "vm_europe_west1_public_ip" {
-  value       = module.compute_europe_west1.public_ips
-  description = "Public IP address of VM in europe-west1 (Western Europe)"
+output "vm_europe_west1_public_ips" {
+  value       = length(module.compute_europe_west1) > 0 ? module.compute_europe_west1[0].public_ips : []
+  description = "Public IP addresses of VMs in europe-west1 (Western Europe)"
 }
 
-output "vm_europe_west1_internal_ip" {
-  value       = module.compute_europe_west1.internal_ips
-  description = "Internal IP address of VM in europe-west1 (Western Europe)"
+output "vm_europe_west1_internal_ips" {
+  value       = length(module.compute_europe_west1) > 0 ? module.compute_europe_west1[0].internal_ips : []
+  description = "Internal IP addresses of VMs in europe-west1 (Western Europe)"
 }
 
-output "vm_europe_west1_web_url" {
-  value       = module.compute_europe_west1.web_server_urls
-  description = "Web server URL for VM in europe-west1"
+output "vm_europe_west1_web_urls" {
+  value       = length(module.compute_europe_west1) > 0 ? module.compute_europe_west1[0].web_server_urls : []
+  description = "Web server URLs for VMs in europe-west1"
 }

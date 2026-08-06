@@ -174,3 +174,72 @@ graph TD
     class SUB1,SUB2 subnetStyle;
     class VM1,VM2 vmStyle;
 ```
+
+---
+
+## 4. Single Region, 4-VM Scale Set Architecture (`umzy-scaleset-single-region`)
+
+### Visual Diagram Blueprint
+![GCP Single Region 4-VM Scale Set Architecture](gcp_scaleset_diagram.jpg)
+
+### Network & Security Flow
+```mermaid
+graph TD
+    classDef internetStyle fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#fff;
+    classDef gcpStyle fill:#0f172a,stroke:#10b981,stroke-width:2px,color:#fff;
+    classDef vpcStyle fill:#1e1e38,stroke:#6366f1,stroke-width:2px,color:#fff;
+    classDef subnetStyle fill:#1e293b,stroke:#f59e0b,stroke-width:2px,color:#fff;
+    classDef vmStyle fill:#334155,stroke:#ec4899,stroke-width:2px,color:#fff;
+
+    subgraph IN ["🌐 Public Internet (0.0.0.0/0)"]
+        A["👨‍💻 Admin (SSH Port 22)"]
+        B["🌐 Web User (HTTP Port 80)"]
+    end
+
+    subgraph GCP ["☁️ Google Cloud Platform (Region: us-south1 Dallas)"]
+        subgraph VPC ["🛡️ Custom VPC Network (umzy-vpc-scaleset)"]
+            subgraph FW ["🔥 Security Boundary"]
+                FW1["Rule: allow_ssh (TCP 22) -> Tag: ssh"]
+                FW2["Rule: allow_http (TCP 80) -> Tag: web-server"]
+            end
+
+            subgraph SUB ["📍 Custom Subnet (umzy-subnet-us-south1)"]
+                SUBNET_INFO["CIDR: 10.128.0.0/20 | 4,094 Usable IPs"]
+                
+                subgraph VM1 ["💻 Compute VM 1 (umzy-app-vm-scaleset-01)"]
+                    APP1["🚀 Apache Web Server"]
+                end
+
+                subgraph VM2 ["💻 Compute VM 2 (umzy-app-vm-scaleset-02)"]
+                    APP2["🚀 Apache Web Server"]
+                end
+
+                subgraph VM3 ["💻 Compute VM 3 (umzy-app-vm-scaleset-03)"]
+                    APP3["🚀 Apache Web Server"]
+                end
+
+                subgraph VM4 ["💻 Compute VM 4 (umzy-app-vm-scaleset-04)"]
+                    APP4["🚀 Apache Web Server"]
+                end
+            end
+        end
+    end
+
+    A -->|TCP 22 (SSH)| FW1
+    B -->|TCP 80 (HTTP)| FW2
+    FW1 -->|Matches Tag: ssh| VM1
+    FW1 -->|Matches Tag: ssh| VM2
+    FW1 -->|Matches Tag: ssh| VM3
+    FW1 -->|Matches Tag: ssh| VM4
+    FW2 -->|Matches Tag: web-server| VM1
+    FW2 -->|Matches Tag: web-server| VM2
+    FW2 -->|Matches Tag: web-server| VM3
+    FW2 -->|Matches Tag: web-server| VM4
+
+    class IN internetStyle;
+    class GCP gcpStyle;
+    class VPC vpcStyle;
+    class SUB subnetStyle;
+    class VM1,VM2,VM3,VM4 vmStyle;
+```
+

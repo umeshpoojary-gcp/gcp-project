@@ -6,8 +6,9 @@ module "vpc" {
   subnets    = var.subnets
 }
 
-# Compute Instance - Region 1 (South US / us-south1)
+# Compute Instance Module - Region 1 (South US / us-south1)
 module "compute_us_south1" {
+  count          = contains(keys(var.subnets), "us_south1") && var.vm_us_south1.instance_count > 0 ? 1 : 0
   source         = "../../modules/compute"
   project_id     = var.project_id
   zone           = var.vm_us_south1.zone
@@ -19,8 +20,9 @@ module "compute_us_south1" {
   tags = module.vpc.firewall_target_tags
 }
 
-# Compute Instance - Region 2 (Western Europe / europe-west1)
+# Compute Instance Module - Region 2 (Western Europe / europe-west1)
 module "compute_europe_west1" {
+  count          = contains(keys(var.subnets), "europe_west1") && var.vm_europe_west1.instance_count > 0 ? 1 : 0
   source         = "../../modules/compute"
   project_id     = var.project_id
   zone           = var.vm_europe_west1.zone
@@ -31,16 +33,3 @@ module "compute_europe_west1" {
 
   tags = module.vpc.firewall_target_tags
 }
-
-# -----------------------------------------------------------------------------
-# Modular Placeholders - Uncomment and configure as you expand infrastructure
-# -----------------------------------------------------------------------------
-
-# Storage Module Example (Reserved for future expansion)
-# module "storage" {
-#   source        = "../../modules/storage"
-#   project_id    = var.project_id
-#   bucket_name   = var.bucket_name
-#   location      = "US"
-#   storage_class = "STANDARD"
-# }
