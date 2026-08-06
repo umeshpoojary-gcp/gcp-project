@@ -26,3 +26,23 @@ resource "google_compute_subnetwork" "subnet" {
   project       = var.project_id
   description   = "Custom Subnet ${each.value.name} in ${each.value.region} inside ${var.vpc_name}"
 }
+
+# Cloud Router for Outbound NAT (Enables private VMs to access internet securely)
+resource "google_compute_router" "router" {
+  count   = var.enable_nat ? 1 : 0
+  name    = "${var.vpc_name}-router"
+  region  = var.region
+  network = google_compute_network.vpc_network.id
+  project = var.project_id
+}
+
+# Cloud NAT Gateway for Outbound Internet Connectivity (for startup package updates)
+resource "google_compute_router_nat" "nat" {
+  count                              = var.enable_nat ? 1 : 0
+  name                               = "${var.vpc_name}-nat"
+  router                             = google_compute_router.router[0].name
+  region                             = var.region
+  project                            = var.project_id
+  nat_ip_allocate_option             = "AUTO_ONLY"
+  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+}

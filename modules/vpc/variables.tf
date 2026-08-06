@@ -35,3 +35,9 @@ variable "subnet_ip_cidr" {
   description = "Single subnet IP CIDR range (fallback for single-subnet configurations)"
   default     = ""
 }
+
+variable "enable_nat" {
+  type        = bool
+  description = "Enable Cloud NAT for outbound internet connectivity from private VMs"
+  default     = true
+}
