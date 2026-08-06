@@ -1,3 +1,7 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap">
+
+<div style="font-family: 'Ubuntu', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+
 # Enterprise GCP Cloud Architecture & Terraform Automation
 
 Welcome to the **Modular GCP Infrastructure Repository**. This project provisions a secure, highly scalable, and enterprise-compliant Google Cloud Platform (GCP) environment using **Terraform (Infrastructure as Code - IaC)**.
@@ -210,3 +214,5 @@ terraform apply -auto-approve
 cd environments/dev
 terraform destroy -auto-approve
 ```
+
+</div>
