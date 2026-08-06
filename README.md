@@ -43,9 +43,14 @@ graph TD
             subgraph SUB ["📍 Custom Subnet (umzy-app-subnet-01)"]
                 SUBNET_INFO["CIDR: 10.128.0.0/20 | 4,094 Usable IPs"]
                 
-                subgraph VM ["💻 Compute Engine VM (umzy-app-vm-dev-01)"]
-                    VM_INFO["Type: e2-micro | OS: Debian 12<br/>Private IP: 10.128.0.2<br/>Public Ephemeral IP"]
-                    APP["🚀 Apache Web Server (Port 80)<br/>Auto-bootstrapped via startup.sh"]
+                subgraph VM1 ["💻 Compute Engine VM 1 (umzy-app-vm-dev-01)"]
+                    VM1_INFO["Type: e2-micro | OS: Debian 12<br/>Private IP: 10.128.0.2<br/>Dedicated Public Ephemeral IP 1"]
+                    APP1["🚀 Apache Web Server (Port 80)<br/>Auto-bootstrapped via startup.sh"]
+                end
+
+                subgraph VM2 ["💻 Compute Engine VM 2 (umzy-app-vm-dev-02)"]
+                    VM2_INFO["Type: e2-micro | OS: Debian 12<br/>Private IP: 10.128.0.3<br/>Dedicated Public Ephemeral IP 2"]
+                    APP2["🚀 Apache Web Server (Port 80)<br/>Auto-bootstrapped via startup.sh"]
                 end
             end
         end
@@ -55,14 +60,16 @@ graph TD
     B -->|TCP 80| FW2
     C -.->|Dropped at Edge| FW3
 
-    FW1 -->|Matches Tag: ssh| VM
-    FW2 -->|Matches Tag: web-server| VM
+    FW1 -->|Matches Tag: ssh| VM1
+    FW1 -->|Matches Tag: ssh| VM2
+    FW2 -->|Matches Tag: web-server| VM1
+    FW2 -->|Matches Tag: web-server| VM2
 
     class IN internetStyle;
     class GCP gcpStyle;
     class VPC vpcStyle;
     class SUB subnetStyle;
-    class VM vmStyle;
+    class VM1,VM2 vmStyle;
 ```
 
 ---
@@ -84,10 +91,10 @@ sequenceDiagram
     Dev->>VPC: 2. Create Firewall Rules (allow_ssh & allow_http)
     VPC->>GCP: Create google_compute_firewall resources
     VPC-->>Dev: 3. Export target_tags output via tolist(setunion(...))
-    Dev->>Compute: 4. Pass tags = module.vpc.firewall_target_tags
-    Compute->>GCP: 5. Create VM Instance (umzy-app-vm-dev-01)
-    Compute->>GCP: 6. Inject metadata_startup_script file("scripts/startup.sh")
-    GCP-->>Dev: 7. Return Instance IPs & Web Server URL
+    Dev->>Compute: 4. Pass tags = module.vpc.firewall_target_tags & count = 2
+    Compute->>GCP: 5. Create 2 VMs (umzy-app-vm-dev-01 & umzy-app-vm-dev-02)
+    Compute->>GCP: 6. Inject metadata_startup_script file("scripts/startup.sh") into both VMs
+    GCP-->>Dev: 7. Return Array of Instance IPs & Web Server URLs
     Dev-->>User: Deployment Complete!
 ```
 
