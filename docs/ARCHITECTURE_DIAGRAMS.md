@@ -161,8 +161,8 @@ graph TD
         end
     end
 
-    A -->|TCP 22| FW1
-    B -->|TCP 80| FW2
+    A -->|TCP 22 (SSH Ingress)| FW1
+    B -->|TCP 80 (HTTP Ingress)| FW2
     FW1 -->|Matches Tag: ssh| VM1
     FW1 -->|Matches Tag: ssh| VM2
     FW2 -->|Matches Tag: web-server| VM1
