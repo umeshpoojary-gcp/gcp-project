@@ -42,3 +42,9 @@ variable "tags" {
   description = "Network tags to apply to the compute instances for firewall rules"
   default     = []
 }
+
+variable "assign_public_ip" {
+  type        = bool
+  description = "Assign ephemeral public IP address to compute instances (Default: false)"
+  default     = false
+}

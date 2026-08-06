@@ -14,12 +14,12 @@ output "internal_ips" {
 }
 
 output "public_ips" {
-  value       = google_compute_instance.vm_instance[*].network_interface[0].access_config[0].nat_ip
-  description = "Public ephemeral IP addresses of the compute instances"
+  value       = [for ni in google_compute_instance.vm_instance[*].network_interface[0] : length(ni.access_config) > 0 ? ni.access_config[0].nat_ip : "N/A (Private Only)"]
+  description = "Public ephemeral IP addresses of the compute instances (if assigned)"
 }
 
 output "web_server_urls" {
-  value       = [for ip in google_compute_instance.vm_instance[*].network_interface[0].access_config[0].nat_ip : "http://${ip}"]
+  value       = [for ni in google_compute_instance.vm_instance[*].network_interface[0] : length(ni.access_config) > 0 ? "http://${ni.access_config[0].nat_ip}" : "N/A (Private Only)"]
   description = "URLs to access the web servers running on the compute instances"
 }
 

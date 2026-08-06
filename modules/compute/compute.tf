@@ -19,12 +19,15 @@ resource "google_compute_instance" "vm_instance" {
     }
   }
 
-  # Network Interface attached to existing Subnet with ephemeral public IP per instance
+  # Network Interface attached to existing Subnet (Private-only by default)
   network_interface {
     subnetwork = var.subnet_id
 
-    access_config {
-      // Ephemeral public IP assignment per VM instance
+    dynamic "access_config" {
+      for_each = var.assign_public_ip ? [1] : []
+      content {
+        // Ephemeral public IP assignment (only when assign_public_ip is true)
+      }
     }
   }
 

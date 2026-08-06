@@ -1,10 +1,11 @@
-# Terraform Compliance Audit Report - Iteration #005 (Scenario 5: 4-VM Scale Set with External HTTP Load Balancer & Health Checks)
+# Terraform Compliance Audit Report - Iteration #005 (Private-Only 4-VM Scale Set + External HTTP Load Balancer)
 
 - **Iteration ID**: `DEV-005`
-- **Deployment Timestamp**: `2026-08-06 15:58:55 CST`
+- **Deployment Timestamp**: `2026-08-06 16:41:39 CST`
 - **Target Environment**: `dev` ([`environments/dev`](../../environments/dev))
 - **Profile File**: [`environments/dev/load-balancer.tfvars`](../../environments/dev/load-balancer.tfvars)
 - **Region**: `us-south1` (South US / Dallas, TX)
+- **Security Mode**: **PRIVATE-ONLY VMs (Public IPs Removed)**
 - **Status**: **DEPLOYED & ACTIVE**
 
 ---
@@ -14,7 +15,7 @@
 ```
 Initializing the backend...
 Initializing modules...
-- load_balancer in ..\..\modules\lb_http
+- load_balancer in ..\..\modules\compute
 - compute_us_south1 in ..\..\modules\compute
 - vpc in ..\..\modules\vpc
 
@@ -40,14 +41,12 @@ Success! The configuration is valid.
 ## 3. `terraform apply` Execution Result Log
 
 ```
-module.load_balancer[0].google_compute_health_check.http_check: Creation complete after 11s [id=projects/project-f69b612e-dd6f-4ddc-a25/global/healthChecks/umzy-web-lb-health-check]
-module.load_balancer[0].google_compute_instance_group.web_group: Creation complete after 11s [id=projects/project-f69b612e-dd6f-4ddc-a25/zones/us-south1-a/instanceGroups/umzy-web-lb-ig]
-module.load_balancer[0].google_compute_backend_service.backend_service: Creation complete after 2m15s [id=projects/project-f69b612e-dd6f-4ddc-a25/global/backendServices/umzy-web-lb-backend]
-module.load_balancer[0].google_compute_url_map.url_map: Creation complete after 12s [id=projects/project-f69b612e-dd6f-4ddc-a25/global/urlMaps/umzy-web-lb-url-map]
-module.load_balancer[0].google_compute_target_http_proxy.http_proxy: Creation complete after 11s [id=projects/project-f69b612e-dd6f-4ddc-a25/global/targetHttpProxies/umzy-web-lb-http-proxy]
-module.load_balancer[0].google_compute_global_forwarding_rule.forwarding_rule: Creation complete after 22s [id=projects/project-f69b612e-dd6f-4ddc-a25/global/forwardingRules/umzy-web-lb-forwarding-rule]
+module.compute_us_south1[0].google_compute_instance.vm_instance[0]: Modifications complete after 11s [id=projects/project-f69b612e-dd6f-4ddc-a25/zones/us-south1-a/instances/umzy-app-vm-scaleset-01]
+module.compute_us_south1[0].google_compute_instance.vm_instance[3]: Modifications complete after 11s [id=projects/project-f69b612e-dd6f-4ddc-a25/zones/us-south1-a/instances/umzy-app-vm-scaleset-04]
+module.compute_us_south1[0].google_compute_instance.vm_instance[2]: Modifications complete after 12s [id=projects/project-f69b612e-dd6f-4ddc-a25/zones/us-south1-a/instances/umzy-app-vm-scaleset-03]
+module.compute_us_south1[0].google_compute_instance.vm_instance[1]: Modifications complete after 12s [id=projects/project-f69b612e-dd6f-4ddc-a25/zones/us-south1-a/instances/umzy-app-vm-scaleset-02]
 
-Apply complete! Resources: 7 added, 0 changed, 0 destroyed.
+Apply complete! Resources: 0 added, 4 changed, 0 destroyed.
 
 Outputs:
 
@@ -68,21 +67,21 @@ vm_us_south1_internal_ips = [
   "10.128.0.3",
 ]
 vm_us_south1_public_ips = [
-  "34.174.201.249",
-  "34.174.30.41",
-  "34.174.15.90",
-  "34.174.10.164",
+  "N/A (Private Only)",
+  "N/A (Private Only)",
+  "N/A (Private Only)",
+  "N/A (Private Only)",
 ]
 vm_us_south1_web_urls = [
-  "http://34.174.201.249",
-  "http://34.174.30.41",
-  "http://34.174.15.90",
-  "http://34.174.10.164",
+  "N/A (Private Only)",
+  "N/A (Private Only)",
+  "N/A (Private Only)",
+  "N/A (Private Only)",
 ]
 vpc_id = "projects/project-f69b612e-dd6f-4ddc-a25/global/networks/umzy-vpc-scaleset"
 vpc_name = "umzy-vpc-scaleset"
 ```
-- **Status**: **7 ADDED, 0 CHANGED, 0 DESTROYED**
+- **Status**: **0 ADDED, 4 CHANGED, 0 DESTROYED**
 
 ---
 
@@ -90,8 +89,8 @@ vpc_name = "umzy-vpc-scaleset"
 
 | Rule | Requirement | Status | Verification Detail |
 | :--- | :--- | :--- | :--- |
-| **HTTP Load Balancer** | GCP External Forwarding Rule + Target Proxy + URL Map | **COMPLIANT** | Provisioned Load Balancer IP: `8.233.214.139` |
-| **HTTP Health Check** | Port 80 `/` health check | **COMPLIANT** | Created `umzy-web-lb-health-check` |
-| **Backend Round-Robin** | Backend service balancing mode | **COMPLIANT** | Attached Instance Group `umzy-web-lb-ig` (4 VMs) |
-| **Modular Code Isolation** | Reusable `modules/lb_http` module | **COMPLIANT** | Dynamic conditional invocation in `environments/dev/main.tf` |
-| **Audit Logging** | State outputs recorded | **COMPLIANT** | Load Balancer URL `http://8.233.214.139` recorded |
+| **Private-Only VMs** | Remove public access_config (nat_ip = null) | **COMPLIANT** | All 4 VMs updated in-place to Private-Only (`10.128.0.x`) |
+| **Single Public Gateway** | External HTTP Load Balancer IP `8.233.214.139` | **COMPLIANT** | `http://8.233.214.139` tested & returning HTTP `200 OK` |
+| **HTTP Health Check** | Port 80 `/` health check | **COMPLIANT** | Active health check `umzy-web-lb-health-check` |
+| **Backend Round-Robin** | Load balancing across 4 private VMs | **COMPLIANT** | Target Instance Group `umzy-web-lb-ig` receiving traffic |
+| **Audit Logging** | State outputs recorded | **COMPLIANT** | Public IPs confirmed `N/A (Private Only)` in audit log |
