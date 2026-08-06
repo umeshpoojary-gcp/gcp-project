@@ -89,28 +89,48 @@ sequenceDiagram
 
 ---
 
-## 🎯 What Are We Building? (Customer-Ready Architecture Explanation)
+## 🎯 Architecture Explanation & Technical Design Deep-Dive
 
-### The Problem We Solved
-In legacy setups, cloud infrastructure is provisioned manually through web consoles, creating security vulnerabilities, open ports, and configuration drift. 
+### 1. Network Topology & Subnet Engineering
+* **Custom VPC Network Isolation:**
+  Default GCP networks auto-provision subnets across every global region, introducing unnecessary attack surface and overlapping IP space. This architecture explicitly creates a **Custom VPC Network** (`auto_create_subnetworks = false`), granting total control over subnetwork placement, routing tables, and perimeter boundaries.
+* **`/20` Subnetwork Capacity Planning:**
+  The subnetwork (`umzy-app-subnet-01`) is configured with a `/20` IPv4 CIDR range (`10.128.0.0/20`), providing **4,094 usable host IP addresses** (`10.128.0.1` to `10.128.15.254`). This sizing satisfies enterprise growth requirements for running auto-scaling Compute groups, Google Kubernetes Engine (GKE) nodes, and internal Load Balancers.
 
-### The Enterprise Architecture We Engineered
-We designed a **Zero-Trust, Modular Infrastructure-as-Code Foundation** in GCP:
+---
 
-1. **Perimeter Security (Custom VPC vs Default VPC):**
-   * Default GCP networks come pre-configured with open ports. We created a **Custom VPC Network** (`umzy-vpc-dev`) with `auto_create_subnetworks = false`.
-   * **Inbound traffic is blocked by default**. Only TCP Port 22 (SSH) and TCP Port 80 (HTTP) are exposed to matching instances. Unused ports (including 443) are blocked at the GCP boundary.
+### 2. Zero-Trust Perimeter & Security Governance
+* **Implicit Deny Ingress Model:**
+  GCP VPC networks operate under a strict default-deny policy for incoming traffic. No ports are reachable from the public internet unless an explicit `google_compute_firewall` ingress resource is defined.
+* **Tag-Based Firewalls (Least-Privilege Enforcement):**
+  Instead of binding firewall rules to static IP addresses or applying them network-wide, access is granted strictly to workloads bearing specific **Network Tags**:
+  * **`allow_ssh`:** Opens TCP Port 22 only to instances bearing the `ssh` network tag.
+  * **`allow_http`:** Opens TCP Port 80 only to instances bearing the `web-server` network tag.
+  * **Default Blocked Traffic:** Port 443 (HTTPS) and all unlisted ports are blocked at the GCP edge boundary.
+* **Dynamic Dependency Chaining (Zero Hardcoding):**
+  The VPC module dynamically collects target tags using `tolist(setunion(google_compute_firewall.allow_ssh.target_tags, google_compute_firewall.allow_http.target_tags))` and exports them via `firewall_target_tags`. The Compute module consumes this output (`tags = module.vpc.firewall_target_tags`), ensuring that any modification to firewall rules instantly updates the VM tags without requiring code refactoring.
 
-2. **Scalable Subnet Sizing (`10.128.0.0/20`):**
-   * Configured with a `/20` CIDR block (`10.128.0.0/20`), providing **4,094 private IP addresses** per environment to support autoscaling, Kubernetes (GKE), and load balancers.
+---
 
-3. **Dynamic Network Tag Propagation (Zero Hardcoding):**
-   * Firewall rules target specific network tags (`ssh`, `web-server`).
-   * The VPC module exports its target tags (`firewall_target_tags`). The Compute module dynamically references these outputs (`tags = module.vpc.firewall_target_tags`), ensuring automatic tag propagation across infrastructure updates.
+### 3. Compute Layer & Automated Bootstrapping Lifecycle
+* **Compute Instance Profile:**
+  Provisioned using `google_compute_instance` configured with cost-optimized compute profiles (`e2-micro` for development, `e2-standard-2` for production) running `Debian 12 Bookworm`.
+* **Public Internet Gateway:**
+  Each VM includes an `access_config {}` block under its `network_interface` mapping, assigning a public ephemeral IPv4 address to enable direct HTTP/SSH access and outbound internet connectivity.
+* **Out-of-Band Application Bootstrapping:**
+  Software installation is externalized via Terraform's `file("${path.module}/scripts/startup.sh")` function. During VM initialization, GCP's metadata agent executes the script to:
+  1. Update Debian package repositories and install `apache2` and `curl`.
+  2. Enable and start the Apache web service.
+  3. Query GCP's internal metadata server (`http://metadata.google.internal/computeMetadata/v1/`) for runtime metrics (hostname, internal IP, external IP, app version).
+  4. Dynamically generate `/var/www/html/index.html` to present live system information upon deployment.
 
-4. **Automated Bootstrapping (Metadata Startup Script):**
-   * Software installation is automated on first boot using an external metadata startup script (`modules/compute/scripts/startup.sh`).
-   * Upon boot, the script installs Apache, queries instance metadata (hostname, internal IP, public IP, version), and serves a live dynamic web page.
+---
+
+### 4. Modular Infrastructure Blueprint & State Parity
+* **DRY (Don't Repeat Yourself) Modularization:**
+  Infrastructure definitions are split into reusable modules (`modules/vpc` and `modules/compute`). Environment root modules (`environments/dev` and `environments/prod`) invoke identical underlying modules with environment-specific input variables.
+* **Environment State Isolation:**
+  `dev` and `prod` maintain isolated Terraform state files, preventing accidental state contamination or blast-radius propagation during maintenance runs.
 
 ---
 
@@ -167,16 +187,6 @@ umzy-gcp-terraform/
 | **OS Distribution** | `Debian 12 Bookworm` | `Debian 12 Bookworm` |
 | **GCP Region / Zone** | `us-south1` (`us-south1-a`) | `us-south1` (`us-south1-a`) |
 | **Firewall Target Tags** | `["ssh", "web-server"]` | `["ssh", "web-server"]` |
-
----
-
-## 🗣️ How to Explain This Architecture to a Customer
-
-### Executive Summary (for Leadership / Non-Technical Stakeholders)
-> *"We have built a secure, automated cloud foundation in GCP using Terraform. Instead of manually configuring servers, our infrastructure is defined entirely as code. This allows us to provision complete environments in under two minutes with guaranteed consistency and zero human error."*
-
-### Technical Deep Dive (for Cloud Architects & Security Teams)
-> *"Our architecture implements a Zero-Trust Custom VPC network in GCP Dallas (`us-south1`). We enforce perimeter security by disabling auto-subnets and dropping all inbound traffic by default. We dynamically bind firewall rules for SSH (port 22) and HTTP (port 80) using network tags exported from the VPC module. The VM instance is provisioned on a `/20` subnet and automatically bootstraps its web server application via a metadata startup script upon boot."*
 
 ---
 
