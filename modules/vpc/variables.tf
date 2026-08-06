@@ -5,7 +5,7 @@ variable "project_id" {
 
 variable "region" {
   type        = string
-  description = "The GCP region for the subnet (Default: GCP Dallas / us-south1)"
+  description = "Default GCP region (Default: GCP Dallas / us-south1)"
   default     = "us-south1"
 }
 
@@ -14,12 +14,24 @@ variable "vpc_name" {
   description = "The name of the VPC network"
 }
 
+variable "subnets" {
+  type = map(object({
+    name           = string
+    region         = string
+    subnet_ip_cidr = string
+  }))
+  description = "Map of subnets to create within the VPC network across regions"
+  default     = {}
+}
+
 variable "subnet_name" {
   type        = string
-  description = "The name of the subnet"
+  description = "Single subnet name (fallback for single-subnet configurations)"
+  default     = ""
 }
 
 variable "subnet_ip_cidr" {
   type        = string
-  description = "The IP CIDR range for the subnet"
+  description = "Single subnet IP CIDR range (fallback for single-subnet configurations)"
+  default     = ""
 }

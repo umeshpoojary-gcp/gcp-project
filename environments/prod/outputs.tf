@@ -1,55 +1,51 @@
 output "vpc_name" {
   value       = module.vpc.vpc_name
-  description = "The name of the provisioned prod VPC network"
+  description = "The name of the provisioned VPC network"
 }
 
 output "vpc_id" {
   value       = module.vpc.vpc_id
-  description = "The ID of the provisioned prod VPC network"
+  description = "The ID of the provisioned VPC network"
 }
 
-output "vpc_self_link" {
-  value       = module.vpc.vpc_self_link
-  description = "The URI of the created prod VPC network"
+output "subnets" {
+  value = {
+    for k, v in module.vpc.subnets : k => {
+      name          = v.name
+      region        = v.region
+      ip_cidr_range = v.ip_cidr_range
+      id            = v.id
+    }
+  }
+  description = "Details of all provisioned subnets across regions"
 }
 
-output "subnet_name" {
-  value       = module.vpc.subnet_name
-  description = "The name of the provisioned prod subnet"
+output "vm_us_south1_public_ip" {
+  value       = module.compute_us_south1.public_ips
+  description = "Public IP address of VM in us-south1 (South US)"
 }
 
-output "subnet_id" {
-  value       = module.vpc.subnet_id
-  description = "The ID of the provisioned prod subnet"
+output "vm_us_south1_internal_ip" {
+  value       = module.compute_us_south1.internal_ips
+  description = "Internal IP address of VM in us-south1 (South US)"
 }
 
-output "subnet_self_link" {
-  value       = module.vpc.subnet_self_link
-  description = "The URI of the created prod subnet"
+output "vm_us_south1_web_url" {
+  value       = module.compute_us_south1.web_server_urls
+  description = "Web server URL for VM in us-south1"
 }
 
-output "subnet_ip_cidr" {
-  value       = module.vpc.subnet_ip_cidr
-  description = "The IP CIDR range of the provisioned prod subnet"
+output "vm_europe_west1_public_ip" {
+  value       = module.compute_europe_west1.public_ips
+  description = "Public IP address of VM in europe-west1 (Western Europe)"
 }
 
-output "instance_names" {
-  value       = module.compute.instance_names
-  description = "The names of the provisioned prod compute instances"
+output "vm_europe_west1_internal_ip" {
+  value       = module.compute_europe_west1.internal_ips
+  description = "Internal IP address of VM in europe-west1 (Western Europe)"
 }
 
-output "instance_internal_ips" {
-  value       = module.compute.internal_ips
-  description = "The internal IP addresses of the prod compute instances"
+output "vm_europe_west1_web_url" {
+  value       = module.compute_europe_west1.web_server_urls
+  description = "Web server URL for VM in europe-west1"
 }
-
-output "instance_public_ips" {
-  value       = module.compute.public_ips
-  description = "The public ephemeral IP addresses of the prod compute instances"
-}
-
-output "web_server_urls" {
-  value       = module.compute.web_server_urls
-  description = "URLs to access the web servers running on the prod compute instances"
-}
-
