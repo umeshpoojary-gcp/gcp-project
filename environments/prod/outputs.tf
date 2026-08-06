@@ -32,3 +32,24 @@ output "subnet_ip_cidr" {
   value       = module.vpc.subnet_ip_cidr
   description = "The IP CIDR range of the provisioned prod subnet"
 }
+
+output "instance_names" {
+  value       = module.compute.instance_names
+  description = "The names of the provisioned prod compute instances"
+}
+
+output "instance_internal_ips" {
+  value       = module.compute.internal_ips
+  description = "The internal IP addresses of the prod compute instances"
+}
+
+output "instance_public_ips" {
+  value       = module.compute.public_ips
+  description = "The public ephemeral IP addresses of the prod compute instances"
+}
+
+output "web_server_urls" {
+  value       = module.compute.web_server_urls
+  description = "URLs to access the web servers running on the prod compute instances"
+}
+

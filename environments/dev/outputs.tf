@@ -33,23 +33,24 @@ output "subnet_ip_cidr" {
   description = "The IP CIDR range of the provisioned dev subnet"
 }
 
-output "instance_name" {
-  value       = module.compute.instance_name
-  description = "The name of the provisioned dev compute instance"
+output "instance_names" {
+  value       = module.compute.instance_names
+  description = "The names of the provisioned dev compute instances"
 }
 
-output "instance_internal_ip" {
-  value       = module.compute.internal_ip
-  description = "The internal IP of the dev compute instance"
+output "instance_internal_ips" {
+  value       = module.compute.internal_ips
+  description = "The internal IP addresses of the dev compute instances"
 }
 
-output "instance_public_ip" {
-  value       = module.compute.public_ip
-  description = "The public ephemeral IP of the dev compute instance"
+output "instance_public_ips" {
+  value       = module.compute.public_ips
+  description = "The public ephemeral IP addresses of the dev compute instances"
 }
 
-output "web_server_url" {
-  value       = "http://${module.compute.public_ip}"
-  description = "URL to access the web server running on the dev compute instance"
+output "web_server_urls" {
+  value       = module.compute.web_server_urls
+  description = "URLs to access the web servers running on the dev compute instances"
 }
+
 

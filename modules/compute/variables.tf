@@ -11,12 +11,18 @@ variable "zone" {
 
 variable "instance_name" {
   type        = string
-  description = "Name of the compute instance"
+  description = "Base name of the compute instances"
+}
+
+variable "instance_count" {
+  type        = number
+  description = "Number of identical compute instances to provision"
+  default     = 2
 }
 
 variable "machine_type" {
   type        = string
-  description = "Machine type for compute instance"
+  description = "Machine type for compute instances"
   default     = "e2-micro"
 }
 
@@ -33,6 +39,6 @@ variable "subnet_id" {
 
 variable "tags" {
   type        = list(string)
-  description = "Network tags to apply to the compute instance for firewall rules"
+  description = "Network tags to apply to the compute instances for firewall rules"
   default     = []
 }

@@ -186,7 +186,8 @@ umzy-gcp-terraform/
 | **VPC Network Name** | `umzy-vpc-dev` | `umzy-vpc-prod` |
 | **Subnet Name** | `umzy-app-subnet-01` | `umzy-app-subnet-01` |
 | **Subnet CIDR Range** | `10.128.0.0/20` (4,094 IPs) | `10.128.0.0/20` (4,094 IPs) |
-| **VM Instance Name** | `umzy-app-vm-dev-01` | `umzy-app-vm-prod-01` |
+| **VM Instance Names** | `umzy-app-vm-dev-01`, `umzy-app-vm-dev-02` (2 VMs) | `umzy-app-vm-prod-01`, `umzy-app-vm-prod-02` (2 VMs) |
+| **Public Ephemeral IPs** | Dedicated Public IP per VM instance | Dedicated Public IP per VM instance |
 | **Compute Profile** | `e2-micro` (0.25–2 vCPU, 1 GB RAM) | `e2-standard-2` (2 vCPU, 8 GB RAM) |
 | **OS Distribution** | `Debian 12 Bookworm` | `Debian 12 Bookworm` |
 | **GCP Region / Zone** | `us-south1` (`us-south1-a`) | `us-south1` (`us-south1-a`) |

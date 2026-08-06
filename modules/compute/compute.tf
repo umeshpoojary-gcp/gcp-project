@@ -1,9 +1,10 @@
 # ==============================================================================
-# Google Compute Engine Instance
+# Google Compute Engine Instances (Identical Multi-VM Provisioning)
 # ==============================================================================
 
 resource "google_compute_instance" "vm_instance" {
-  name         = var.instance_name
+  count        = var.instance_count
+  name         = var.instance_count > 1 ? "${var.instance_name}-${format("%02d", count.index + 1)}" : var.instance_name
   machine_type = var.machine_type
   zone         = var.zone
   project      = var.project_id
@@ -18,12 +19,12 @@ resource "google_compute_instance" "vm_instance" {
     }
   }
 
-  # Network Interface attached to existing Subnet with ephemeral public IP
+  # Network Interface attached to existing Subnet with ephemeral public IP per instance
   network_interface {
     subnetwork = var.subnet_id
 
     access_config {
-      // Ephemeral public IP assignment
+      // Ephemeral public IP assignment per VM instance
     }
   }
 
