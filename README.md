@@ -10,7 +10,9 @@ Welcome to the **Modular GCP Infrastructure Repository**. This project provision
 
 ## 📸 High-Resolution Architecture Diagram
 
-![GCP Architecture Diagram](./gcp_architecture_diagram.jpg)
+<p align="center">
+  <img src="gcp_architecture_diagram.jpg" alt="GCP Architecture Diagram" width="100%" />
+</p>
 
 ---
 
