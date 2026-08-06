@@ -49,3 +49,13 @@ output "vm_europe_west1_web_urls" {
   value       = length(module.compute_europe_west1) > 0 ? module.compute_europe_west1[0].web_server_urls : []
   description = "Web server URLs for VMs in europe-west1"
 }
+
+output "load_balancer_public_ip" {
+  value       = length(module.load_balancer) > 0 ? module.load_balancer[0].lb_public_ip : ""
+  description = "Public IP address of the External HTTP Load Balancer"
+}
+
+output "load_balancer_url" {
+  value       = length(module.load_balancer) > 0 ? module.load_balancer[0].lb_url : ""
+  description = "Public URL of the External HTTP Load Balancer"
+}

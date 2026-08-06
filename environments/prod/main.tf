@@ -33,3 +33,13 @@ module "compute_europe_west1" {
 
   tags = module.vpc.firewall_target_tags
 }
+
+# External HTTP Load Balancer & Health Check Module
+module "load_balancer" {
+  count               = var.enable_load_balancer ? 1 : 0
+  source              = "../../modules/lb_http"
+  project_id          = var.project_id
+  zone                = var.vm_us_south1.zone
+  lb_name             = var.lb_name
+  instance_self_links = length(module.compute_us_south1) > 0 ? module.compute_us_south1[0].self_links : []
+}

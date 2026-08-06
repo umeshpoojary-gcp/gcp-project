@@ -55,6 +55,18 @@ variable "vm_europe_west1" {
   description = "VM parameters for europe-west1 region"
 }
 
+variable "enable_load_balancer" {
+  type        = bool
+  description = "Enable External HTTP Load Balancer in front of compute instances"
+  default     = false
+}
+
+variable "lb_name" {
+  type        = string
+  description = "Base name for the HTTP Load Balancer resources"
+  default     = "umzy-web-lb-prod"
+}
+
 variable "bucket_name" {
   type        = string
   description = "Name of GCS bucket placeholder"
