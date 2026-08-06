@@ -10,7 +10,15 @@ Detailed architecture blueprints and flow charts are indexed in [`docs/ARCHITECT
 
 ---
 
-## 📸 High-Resolution Visual Architecture Blueprints
+## 📸 Primary Architecture Diagram (Multi-Region Multi-VM)
+
+<p align="center">
+  <img src="gcp_multiregion_diagram.jpg" alt="GCP Multi-Region Multi-VM Architecture Diagram" width="100%" />
+</p>
+
+---
+
+## 📸 Architecture Blueprints by Scenario
 
 ### Scenario 1: Single Region, Single VM (`umzy-singlevm-single-region`)
 <p align="center">
@@ -50,9 +58,10 @@ umzy-gcp-terraform/
 ├── README.md                      # Primary blueprint & execution documentation
 ├── docs/                          # Architecture Diagrams & Blueprint Docs
 │   └── ARCHITECTURE_DIAGRAMS.md   # Deep-dive diagrams for all 3 scenarios
+├── gcp_architecture_diagram.jpg   # Primary architecture visual asset (Multi-Region)
+├── gcp_multiregion_diagram.jpg    # Multi-Region Multi-VM visual asset
 ├── gcp_singlevm_diagram.jpg       # Single-Region Single-VM visual asset
 ├── gcp_multivm_singleregion_diagram.jpg # Single-Region Multi-VM visual asset
-├── gcp_multiregion_diagram.jpg    # Multi-Region Multi-VM visual asset
 ├── compliance/                    # Compliance & audit logging index
 │   ├── README.md                  # Audit Index
 │   └── reports/                   # Timestamped execution reports
